@@ -78,6 +78,8 @@ Doc
 ..  layout: block, block.db, block.wal
 :build:  `<https://docs.ceph.com/en/latest/install/build-ceph/>`_
          `<https://docs.ceph.com/en/latest/dev/quick_guide/>`_
+         `<https://docs.ceph.com/en/latest/dev/macos/>`_
+:ci:     `<https://github.com/ceph/teuthology>`_
 :contrib:  `<https://docs.ceph.com/en/latest/dev/developer_guide/basic-workflow/#basic-workflow-dev-guide>`_
            `<https://docs.ceph.com/en/latest/start/documenting-ceph/#documenting-ceph>`_
 :test:  `<https://docs.ceph.com/en/latest/dev/developer_guide/tests-unit-tests/>`_
@@ -148,15 +150,13 @@ Contrib
 :health:
     ./bin/ceph health detail
 :intro:
+    export DOCKER_DEFAULT_PLATFORM=linux/amd64
     docker run -it --stop-signal SIGQUIT --privileged --cap-add=SYS_PTRACE --security-opt seccomp=unconfined  --name ceph -v ~/Documents/gitspace:/mnt/macos --net=host  debian:testing
-    apt-get install software-properties-common
-    add-apt-repository ppa:deadsnakes/ppa
-    apt-get install libboost1.88-all-dev  liburing-dev  libqatzip-dev  libcatch2-dev  librocksdb-dev  catch2  npm
     ./install-deps.sh
     git submodule deinit --force --all
     git submodule update --init --recursive --progress  --jobs 1
-    ./do_cmake.sh -DWITH_MANPAGE=OFF -DWITH_BABELTRACE=OFF -DWITH_MGR_DASHBOARD_FRONTEND=OFF -DWITH_RBD=OFF -DWITH_KRBD=OFF -DWITH_RADOSGW=OFF -DWITH_SYSTEM_BOOST=ON  (cmake -LH)
-    rm -rf build && ./do_cmake.sh -DWITH_RADOSGW=OFF -DWITH_SYSTEM_LIBURING=ON -DWITH_SYSTEM_PMDK=ON -DWITH_SYSTEM_QATLIB=ON -DWITH_SYSTEM_QATZIP=ON -DWITH_SYSTEM_ARROW=ON -DWITH_SYSTEM_UTF8PROC=ON -DWITH_SYSTEM_ROCKSDB=ON -DWITH_SYSTEM_BOOST=ON -DWITH_SYSTEM_NPM=ON -DWITH_SYSTEMD=OFF -DWITH_MGR_DASHBOARD_FRONTEND=OFF -DWITH_SYSTEM_CATCH2=ON
+    ./do_cmake.sh -DWITH_MANPAGE=OFF -DWITH_BABELTRACE=OFF -DWITH_MGR_DASHBOARD_FRONTEND=OFF -DWITH_RBD=OFF -DWITH_KRBD=OFF -DWITH_RADOSGW=OFF -DWITH_TESTS=OFF -DWITH_SYSTEM_BOOST=ON  (cmake -LH)
+    ./run-make-check.sh
     cd build; ninja -t targets all
     env MON=1 MDS=1 OSD=1 ../src/vstart.sh --new -x --localhost --bluestore  --debug --trace
                           ../src/stop.sh  &&  rm -rf out dev
@@ -166,5 +166,4 @@ Contrib
 
 FIXME: `<https://docs.ceph.com/en/latest/dev/developer_guide/basic-workflow/#amending-your-pr>`_ inconsistent
        with `<https://github.com/ceph/ceph/blob/main/SubmittingPatches.rst>`_
-
 FIXME: `<https://docs.ceph.com/en/latest/dev/developer_guide/basic-workflow/#miscellaneous>`_
