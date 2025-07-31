@@ -83,6 +83,10 @@ Doc
 :contrib:  `<https://docs.ceph.com/en/latest/dev/developer_guide/basic-workflow/#basic-workflow-dev-guide>`_
            `<https://docs.ceph.com/en/latest/start/documenting-ceph/#documenting-ceph>`_
 :test:  `<https://docs.ceph.com/en/latest/dev/developer_guide/tests-unit-tests/>`_
+:cephadm:  Ceph orchestrator - `/ceph/src/cephadm`
+           `<https://ceph.io/en/news/blog/2025/automating-ceph-cluster-deployments_part1/>`_
+
+    cephadm deploys all Ceph daemons as containers using Docker or Podman.
 :cephFS:  `<https://www.kernel.org/doc/html/latest/filesystems/ceph.html>`_
 :crush:  `<https://ceph.io/assets/pdfs/weil-crush-sc06.pdf>`_
 
@@ -129,13 +133,52 @@ Doc
 
 ..  quantified overall system reliability, MTTDL (sec 4.4, 5)
 
-:glossary:  `<https://docs.ceph.com/en/latest/glossary/#term-Object-Storage-Device>`_
+:glossary:  `<https://docs.ceph.com/en/latest/glossary/>`_
 :ibm:  `<https://www.ibm.com/docs/en/storage-ceph>`_
        `<https://www.redbooks.ibm.com/abstracts/redp5721.html>`_
 :S3 lifetime management: tiering system
-:paxos:  `<https://en.wikipedia.org/wiki/Paxos_(computer_science)>`_
-:rados:  `<https://ceph.io/assets/pdfs/weil-rados-pdsw07.pdf>`_
+:paxos:  `<https://www.scylladb.com/glossary/paxos-consensus-algorithm/>`_
 
+    The Paxos algorithm provides a mechanism that enables distributed systems
+    to continue working in a predictable way in the event of network
+    partitioning or server failures. As long as a client application can
+    communicate with key roles in a distributed system, then distributed
+    storage, for example, can function as predictably as a thread-safe data
+    structure.
+
+:rados:  `/ceph/src/librados`
+         `<https://ceph.io/assets/pdfs/weil-rados-pdsw07.pdf>`_
+         `<https://docs.ceph.com/en/latest/rados/api/>`_
+
+    RADOS (reliable autonomic distributed object store, although many people
+    mistakenly say “autonomous”) has been under development at DreamHost, led
+    by Sage A. Weil, for a number of years and is basically the result of a
+    doctoral thesis at the University of California, Santa Cruz. RADOS
+    implements precisely the functionality of an object store as described
+    earlier, distinguishing between three different layers to do so:
+
+    1. Object Storage Devices (OSDs). An OSD in RADOS is always a folder within
+       an existing filesystem. All OSDs together form the object store proper,
+       and the binary objects that RADOS generates from the files to be stored
+       reside in the store. The hierarchy within the OSDs is flat: files with
+       UUID-style names but no subfolders.
+    2. Monitoring servers (MONs): MONs form the interface to the RADOS store and
+       support access to the objects within the store. They handle communication
+       with all external applications and work in a decentralized way: There are
+       no restrictions in terms of numbers, and any client can talk to any MON.
+       MONs manage the MONmap (a list of all MONs) and the OSDmap (a list of all
+       OSDs). The information from these two lists lets clients compute which
+       OSD they need to contact to access a specific file. In the style of a
+       Paxos cluster, MONs also ensure RADOS’s functionality in terms of
+       respecting quorum rules.
+    3. Metadata servers (MDS): MDSs provide POSIX metadata for objects in the
+       RADOS object store for Ceph clients.
+
+:vstart: `<https://docs.ceph.com/en/latest/dev/dev_cluster_deployment/#dev-deploying-a-development-cluster>`_
+         `<https://docs.ceph.com/en/latest/dev/quick_guide/>`_
+
+..  logs `build/out`
+         
 ..  FIXME MGR::balancer?
 ..  FIXME MGR::auto-scaler?
 ..  FIXME MGR::prometheus?
@@ -145,10 +188,9 @@ Doc
 Contrib
 ~~~~~~~
 
+:conf: `./build/ceph.conf`
 :gdb:
     gdb --batch -ex "source ../extensions/pygdb.py" -p `cat ./out/mon.a.pid`
-:health:
-    ./bin/ceph health detail
 :intro:
     export DOCKER_DEFAULT_PLATFORM=linux/amd64
     docker run -it --stop-signal SIGQUIT --privileged --cap-add=SYS_PTRACE --security-opt seccomp=unconfined  --name ceph -v ~/Documents/gitspace:/mnt/macos --net=host  debian:testing
@@ -164,6 +206,15 @@ Contrib
     ninja -t targets all (check,test)
     ninja unittest_crush && ./bin/unittest_crush --gtest_filter="CRUSHTest.indep_basic"  (--gtest_list_tests)
 
-FIXME: `<https://docs.ceph.com/en/latest/dev/developer_guide/basic-workflow/#amending-your-pr>`_ inconsistent
-       with `<https://github.com/ceph/ceph/blob/main/SubmittingPatches.rst>`_
-FIXME: `<https://docs.ceph.com/en/latest/dev/developer_guide/basic-workflow/#miscellaneous>`_
+:ceph --cluster {cluster-name}:
+:ceph health detail:
+:ceph mgr services:
+:ceph osd pool stats:
+:ceph osd pool create mypool:
+
+
+:rados df:
+:rados -p mypool bench 10 write -b 123:
+:rados -p mypool put objectone <somefile>:
+:rados -p mypool put objecttwo <anotherfile>:
+:rados -p mypool ls:
