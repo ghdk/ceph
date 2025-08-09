@@ -137,15 +137,13 @@ Doc
 :ibm:  `<https://www.ibm.com/docs/en/storage-ceph>`_
        `<https://www.redbooks.ibm.com/abstracts/redp5721.html>`_
 :S3 lifetime management: tiering system
-:paxos:  `<https://www.scylladb.com/glossary/paxos-consensus-algorithm/>`_
+:paxos,raft:  `<https://raft.github.io/raft.pdf>`_
+    `</ceph/src/mon/Paxos.h>`_
 
-    The Paxos algorithm provides a mechanism that enables distributed systems
-    to continue working in a predictable way in the event of network
-    partitioning or server failures. As long as a client application can
-    communicate with key roles in a distributed system, then distributed
-    storage, for example, can function as predictably as a thread-safe data
-    structure.
-
+..  One or more instances of ceph-mon form a Paxos part-time parliament
+    cluster that provides extremely reliable and durable storage of cluster
+    membership, configuration, and state.
+    see `</ceph/debian/control>`_
 :rados:  `/ceph/src/librados`
          `<https://ceph.io/assets/pdfs/weil-rados-pdsw07.pdf>`_
          `<https://docs.ceph.com/en/latest/rados/api/>`_
@@ -196,7 +194,7 @@ Contrib
     docker run -it --stop-signal SIGQUIT --privileged --cap-add=SYS_PTRACE --security-opt seccomp=unconfined  --name ceph -v ~/Documents/gitspace:/mnt/macos --net=host  debian:testing
     ./install-deps.sh
     git submodule deinit --force --all
-    git submodule update --init --recursive --progress  --jobs 1
+    git submodule update --init --recursive --progress --depth=1  --single-branch  --jobs 1
     ./do_cmake.sh -DWITH_MANPAGE=OFF -DWITH_BABELTRACE=OFF -DWITH_MGR_DASHBOARD_FRONTEND=OFF -DWITH_RBD=OFF -DWITH_KRBD=OFF -DWITH_RADOSGW=OFF -DWITH_TESTS=OFF -DWITH_SYSTEM_BOOST=ON  (cmake -LH)
     ./run-make-check.sh
     cd build; ninja -t targets all
